@@ -1,0 +1,4 @@
+messageID: 4 byte
+messageLen: 4 byte
+payload: n byte
+checksum: 1 byte

@@ -1,0 +1,48 @@
+sequence: Üretim Testi v1
+steps:
+  - name: PSU Hazırlık
+    type: scpi_write
+    instrument: psu1
+    command: ["VOLT 12", "CURR 1", "OUTP ON"]
+  - name: Bekleme
+    type: delay
+    seconds: 0.2
+  - name: Versiyon Testi (metin)
+    type: send_receive
+    transport: dut_text
+    send: "GET VERSION"
+    terminator: "\\r\\n"
+    expect_regex: "^v1\\.2\\.\\d+"
+  - name: Versiyon Testi (çerçeve)
+    type: frame
+    transport: dut
+    message_id: "0x01"
+    expect_id: "0x81"
+    expect_payload_regex_hex: "(?:312e322e35)"
+  - name: DUT Başlatma (Katalog Mesajı)
+    type: dut_message
+    transport: dut
+    message: INIT_REQ
+    preset: fabrika_init
+    params: {mode: TEST}
+    expect:
+      status: OK
+      temp: {min: 15.0, max: 40.0}
+      flags: {ready: true, fault: false}
+  - name: Çekilen Akım
+    type: measure
+    instrument: psu1
+    method: measure_current
+    samples: 20
+    interval: 0.02
+    limits: {min: 0.10, max: 0.25, unit: A}
+  - name: Besleme Gerilimi
+    type: measure
+    instrument: psu1
+    method: measure_voltage
+    limits: {min: 11.8, max: 12.2, unit: V}
+  - name: PSU Kapat
+    type: scpi_write
+    instrument: psu1
+    command: "OUTP OFF"
+    on_fail: continue

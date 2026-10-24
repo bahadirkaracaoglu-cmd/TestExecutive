@@ -1,0 +1,10 @@
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.db
+*.pdf
+*.xlsx
+*.html
+!testexec/reports/templates/*.html

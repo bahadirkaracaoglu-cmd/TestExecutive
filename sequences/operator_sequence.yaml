@@ -1,0 +1,37 @@
+sequence: Operatör Girişli Test v1
+steps:
+  - name: Seri No Girişi
+    type: operator_input
+    kind: text
+    message: "DUT seri numarasını girin / okutun"
+    store_as: serial
+    expect_regex: "^[A-Za-z0-9\\-]{4,}$"
+  - name: Kablo Bağlantı Onayı
+    type: operator_input
+    kind: confirm
+    message: "DUT güç ve haberleşme kablolarını bağladınız mı?"
+  - name: PSU Hazırlık
+    type: scpi_write
+    instrument: psu1
+    command: ["VOLT 12", "CURR 1", "OUTP ON"]
+  - name: Bekleme
+    type: delay
+    seconds: 0.2
+  - name: Versiyon Testi
+    type: frame
+    transport: dut
+    message_id: "0x01"
+    expect_id: "0x81"
+    expect_payload_regex_hex: "(?:312e322e35)"
+  - name: Çekilen Akım
+    type: measure
+    instrument: psu1
+    method: measure_current
+    samples: 30
+    interval: 0.03
+    limits: {min: 0.10, max: 0.25, unit: A}
+  - name: PSU Kapat
+    type: scpi_write
+    instrument: psu1
+    command: "OUTP OFF"
+    on_fail: continue

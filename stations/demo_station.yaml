@@ -1,0 +1,20 @@
+station: ISTASYON-1
+dut_profile: dut_profiles/example_dut.yaml
+# Gerçek donanım için: type: tcp/udp/serial/visa (örnekler aşağıda yorum satırı)
+transports:
+  dut:
+    type: mock
+    profile: dut
+  dut_text:
+    type: mock
+    profile: text_dut
+  psu_link:
+    type: mock
+    profile: scpi
+  # psu_link: {type: visa, resource: "TCPIP0::192.168.1.20::INSTR"}
+  # dut: {type: serial, port: COM3, baudrate: 115200}
+  # dut: {type: tcp, host: 192.168.1.50, port: 5000}
+instruments:
+  psu1:
+    type: psu
+    transport: psu_link

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><title>Test Raporu #{{ run.id }}</title>
+<style>
+ body{font-family:'Segoe UI',Arial,sans-serif;color:#111827;margin:32px;font-size:12px}
+ h1{font-size:22px;margin:0 0 4px} .sub{color:#6b7280;margin-bottom:18px}
+ .verdict{display:inline-block;padding:6px 22px;border-radius:8px;color:#fff;font-size:22px;font-weight:700;
+   background:{% if run.status=='PASS' %}#16a34a{% elif run.status=='FAIL' %}#dc2626{% else %}#d97706{% endif %}}
+ table{border-collapse:collapse;width:100%;margin:12px 0} th{background:#111827;color:#fff;text-align:left;padding:7px}
+ td{padding:6px 7px;border-bottom:1px solid #e5e7eb} .meta td{border:none;padding:2px 14px 2px 0}
+ .PASS{color:#16a34a;font-weight:700}.FAIL{color:#dc2626;font-weight:700}.ERROR{color:#d97706;font-weight:700}.SKIPPED{color:#6b7280}
+ .chart{margin:10px 0;page-break-inside:avoid} .mono{font-family:Consolas,monospace;font-size:10px}
+</style></head><body>
+<h1>Test Raporu</h1><div class="sub">{{ run.sequence }} &middot; Kayıt #{{ run.id }}</div>
+<div class="verdict">{{ run.status }}</div>
+<table class="meta"><tr><td><b>Seri No</b></td><td>{{ run.serial }}</td><td><b>Operatör</b></td><td>{{ run.operator }}</td></tr>
+<tr><td><b>İstasyon</b></td><td>{{ run.station }}</td><td><b>Tarih</b></td><td>{{ run.started.strftime('%d.%m.%Y %H:%M:%S') }}</td></tr></table>
+<h2>Adım Sonuçları</h2>
+<table><tr><th>#</th><th>Adım</th><th>Sonuç</th><th>Değer</th><th>Limit</th><th>Süre</th><th>Mesaj</th></tr>
+{% for it in steps %}{% set s = it.s %}
+<tr><td>{{ loop.index }}</td><td>{{ s.name }}</td><td class="{{ s.status }}">{{ s.status }}</td>
+<td>{% if s.value_num is not none %}{{ '%.4g'|format(s.value_num) }} {{ s.unit }}{% else %}{{ s.value_text or '' }}{% endif %}</td>
+<td>{% if s.low is not none or s.high is not none %}{{ s.low if s.low is not none else '−∞' }} … {{ s.high if s.high is not none else '+∞' }} {{ s.unit }}{% endif %}</td>
+<td>{{ '%.2f'|format(s.duration) }} s</td><td>{{ s.message }}</td></tr>{% endfor %}</table>
+{% for it in steps if it.chart %}<div class="chart"><img src="data:image/png;base64,{{ it.chart }}" width="640"></div>{% endfor %}
+{% if traffic %}<h2>Ham İletişim Kaydı</h2><table class="mono"><tr><th>Zaman</th><th>Kanal</th><th>Yön</th><th>Veri (hex)</th></tr>
+{% for ts,ch,d,data in traffic %}<tr><td>{{ ts }}</td><td>{{ ch }}</td><td>{{ d }}</td><td>{{ data }}</td></tr>{% endfor %}</table>{% endif %}
+</body></html>
